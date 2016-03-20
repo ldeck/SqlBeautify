@@ -1,0 +1,112 @@
+<project name="SqlBeautify" default="build" basedir=".">
+  <description>
+    Create a Sql Beautify (JAR) with Ant build script
+  </description>
+
+  <property name="projectName" value="SqlBeautify"/>
+  <property name="version" value="1.0"/>
+
+  <property name="src.dir" location="src/main/java"/>
+
+  <property name="tmp.dir" location="tmp"/>
+  <property name="build.dir" location="${tmp.dir}/build"/>
+  <property name="deps.dir" location="${tmp.dir}/lib"/>
+
+  <property name="package.dir" value="${tmp.dir}/package"/>
+  <property name="deps.uber.jar" value="${package.dir}/all-dependencies.jar"/>
+
+  <!-- remote deps -->
+  <property name="blancosqlformatter.jar.name" value="blancosqlformatter-2.0.0.jar"/>
+  <property name="blancosqlformatter.jar.remote.url" value="https://github.com/igapyon/blancoSqlFormatter/raw/master/lib.ant/${blancosqlformatter.jar.name}"/>
+
+  <!-- packaging -->
+  <property name="main-class" value="tools.SqlBeautify"/>
+  <property name="encoding" value="UTF-8"/>
+  <property name="lib.dir" location="lib"/>
+  <property name="jar.file" location="${lib.dir}/${projectName}-${version}.jar"/>
+
+  <!-- ============= -->
+  <!-- init routines -->
+  <!-- ============= -->
+  <target name="init">
+    <mkdir dir="${build.dir}" />
+  </target>
+
+  <target name="clean" description="clean up">
+    <delete dir="${tmp.dir}" />
+    <delete dir="${lib.dir}"/>
+  </target>
+
+  <!-- ===================== -->
+  <!-- dependencies fetching -->
+  <!-- ===================== -->
+  <target name="deps.check">
+    <condition property="deps.downloaded">
+      <and>
+        <available file="${deps.dir}/${blancosqlformatter.jar.name}"/>
+      </and>
+    </condition>
+  </target>
+
+  <target name="pull-blancosqlformatter" unless="deps.downloaded" depends="deps.check">
+    <mkdir dir="${deps.dir}"/>
+    <get dest="${deps.dir}">
+      <url url="${blancosqlformatter.jar.remote.url}"/>
+    </get>
+  </target>
+
+  <target name="pull-deps" depends="pull-blancosqlformatter"/>
+
+  <!-- ========= -->
+  <!-- compiling -->
+  <!-- ========= -->
+  <path id="classpath">
+    <fileset dir="${deps.dir}/">
+      <include name="*.jar" />
+    </fileset>
+  </path>
+
+  <target name="compile" depends="init,pull-deps" description="compile the source ">
+      <javac destdir="${build.dir}"
+             debug="true"
+             encoding="${encoding}"
+             srcdir="${src.dir}"
+             classpathref="classpath"
+             includeantruntime="false"/>
+  </target>
+
+  <!-- ========= -->
+  <!-- packaging -->
+  <!-- ========= -->
+
+  <!-- Group all dependencies into a big dependency-all.jar -->
+  <target name="copy-dependencies">
+    <mkdir dir="${package.dir}" />
+    <jar jarfile="${deps.uber.jar}">
+      <zipgroupfileset dir="${deps.dir}">
+        <include name="**/*.jar" />
+      </zipgroupfileset>
+    </jar>
+  </target>
+
+  <!-- jar it, extract above dependency-all.jar and zip it with project files -->
+  <target name="jar" depends="compile, copy-dependencies"
+                description="package, output to JAR">
+
+    <mkdir dir="${lib.dir}" />
+
+    <jar jarfile="${jar.file}" basedir="${build.dir}">
+      <manifest>
+        <attribute name="Main-Class" value="${main-class}" />
+      </manifest>
+      <zipfileset src="${deps.uber.jar}"
+                  excludes="META-INF/*.SF" />
+    </jar>
+  </target>
+
+  <!-- ================= -->
+  <!-- Default action    -->
+  <!-- ================= -->
+  <target name="build" depends="clean, compile, jar" />
+
+</project>

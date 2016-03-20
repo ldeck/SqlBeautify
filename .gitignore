@@ -1,1 +1,4 @@
 *.class
+/tmp
+/lib/SqlBeautify-*.jar
+
