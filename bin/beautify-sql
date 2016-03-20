@@ -1,0 +1,9 @@
+#!/bin/sh
+
+set -u;
+set -e;
+
+DIR=$(cd "$(dirname "$BASH_SOURCE")"; pwd)
+LIB_DIR=$(dirname $DIR)/lib
+
+java -jar $LIB_DIR/SqlBeautify-*.jar < /dev/stdin;
