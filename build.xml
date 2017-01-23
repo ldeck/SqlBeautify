@@ -16,8 +16,8 @@
   <property name="deps.uber.jar" value="${package.dir}/all-dependencies.jar"/>
 
   <!-- remote deps -->
-  <property name="blancosqlformatter.jar.name" value="blancosqlformatter-2.0.0.jar"/>
-  <property name="blancosqlformatter.jar.remote.url" value="https://github.com/igapyon/blancoSqlFormatter/raw/master/lib.ant/${blancosqlformatter.jar.name}"/>
+  <property name="blancosqlformatter.jar.name" value="blancosqlformatter-2.1.0.jar"/>
+  <property name="blancosqlformatter.jar.remote.url" value="https://github.com/igapyon/blancoSqlFormatter/raw/master/${blancosqlformatter.jar.name}"/>
 
   <!-- packaging -->
   <property name="main-class" value="tools.SqlBeautify"/>
